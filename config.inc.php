@@ -1,15 +1,4 @@
 <?php
-/*
- * 总体配置文件，包括API Key, Secret Key，以及所有允许调用的API列表
- * This file for configure all necessary things for invoke, including API Key, Secret Key, and all APIs list
- *
- * @Modified by mike on 17:54 2011/12/21.
- * @Modified by Edison tsai on 16:34 2011/01/13 for remove call_id & session_key in all parameters.
- * @Created: 17:21:04 2010/11/23
- * @Author:	Edison tsai<dnsing@gmail.com>
- * @Blog:	http://www.timescode.com
- * @Link:	http://www.dianboom.com
- */
 
 $config				= new stdClass;
 

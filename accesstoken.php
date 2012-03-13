@@ -48,6 +48,7 @@ if(null !== $code) {
   
   $ret = http($url, 'POST', $params);
   //echo $ret; echo '<hr>';
+  file_put_contents('cache/friendslist.txt',$ret);
 
   $friends = json_decode($ret, true);
   //var_dump($friends); echo '<hr>';
@@ -85,24 +86,25 @@ if(null !== $code) {
   
   $ret = http($url, 'POST', $params);
 
-  $relationships = json_decode($ret, true);
+  //$relationships = json_decode($ret, true);
   //$relationships = json_decode('[{"are_friends":0,"uid2":42998847,"uid1":32015768},{"are_friends":0,"uid2":48774601,"uid1":32015768},{"are_friends":0,"uid2":95563710,"uid1":32015768},{"are_friends":0,"uid2":179706788,"uid1":32015768}]',true);
-  
-  echo $ret; echo '<hr>';
+  file_put_contents('cache/friendsrelation.txt',$ret);
+  //echo $ret; echo '<hr>';
   //var_dump($relationships);
 
-  $file2wrt = 'cache/tmp.edges';
-  $fp = fopen($file2wrt,'w+');
+  /* $file2wrt = 'cache/tmp.edges'; */
+  /* $fp = fopen($file2wrt,'w+'); */
   
-  $count_edges = count($relationships);
+  /* $count_edges = count($relationships); */
 
-  for ($counter=0; $counter < $count_edges; $counter += 1)
-    if ($relationships[$counter]['are_friends'] == '1')
-      fwrite($fp, $relationships[$counter]['uid1'].'\t'.$relationships[$counter]['uid2']."\n");
-    else
-      echo $relationships[$counter]['are_friends'];
+  /* for ($counter=0; $counter < $count_edges; $counter += 1) */
+  /*   if ($relationships[$counter]['are_friends'] == '1') */
+  /*     fwrite($fp, $relationships[$counter]['uid1'].'\t'.$relationships[$counter]['uid2']."\n"); */
+  /*   else */
+  /*     echo $relationships[$counter]['are_friends']; */
   
-  fclose($fp);
+  /* fclose($fp); */
+  shell_exec("./proc.sh");
   echo "success!";
 }
 
