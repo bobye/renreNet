@@ -48,7 +48,7 @@ if(null !== $code) {
   
   $ret = http($url, 'POST', $params);
   //echo $ret; echo '<hr>';
-  file_put_contents('cache/friendslist.txt',$ret);
+  file_put_contents('cache/friendslist.json',$ret);
 
   $friends = json_decode($ret, true);
   //var_dump($friends); echo '<hr>';
@@ -86,25 +86,64 @@ if(null !== $code) {
   
   $ret = http($url, 'POST', $params);
 
-  //$relationships = json_decode($ret, true);
-  //$relationships = json_decode('[{"are_friends":0,"uid2":42998847,"uid1":32015768},{"are_friends":0,"uid2":48774601,"uid1":32015768},{"are_friends":0,"uid2":95563710,"uid1":32015768},{"are_friends":0,"uid2":179706788,"uid1":32015768}]',true);
-  file_put_contents('cache/friendsrelation.txt',$ret);
-  //echo $ret; echo '<hr>';
-  //var_dump($relationships);
+  file_put_contents('cache/friendsrelation.json',$ret);
 
-  /* $file2wrt = 'cache/tmp.edges'; */
-  /* $fp = fopen($file2wrt,'w+'); */
-  
-  /* $count_edges = count($relationships); */
 
-  /* for ($counter=0; $counter < $count_edges; $counter += 1) */
-  /*   if ($relationships[$counter]['are_friends'] == '1') */
-  /*     fwrite($fp, $relationships[$counter]['uid1'].'\t'.$relationships[$counter]['uid2']."\n"); */
-  /*   else */
-  /*     echo $relationships[$counter]['are_friends']; */
+  $params = array(
+  		  'api_key' => $config->APIKey,
+  		  'call_id' => array_pop(explode(' ', microtime())), //当前调用请求队列号，建议使用当前系统时间的毫秒值。
+  		  'format' => 'json',
+  		  'method' => 'users.getInfo',
+  		  'session_key' => $session_key,
+  		  'v' => '1.0',
+  		  'uids' => implode(',',$friends),
+		  'fields' => 'uid,name,sex',
+  		  );
+  ksort($params);
+  $params['sig'] = getSig($params, $config->SecretKey);
   
-  /* fclose($fp); */
+  $ret = http($url, 'POST', $params);
+
+  file_put_contents('cache/friendsinfo.json',$ret);
+
   shell_exec("./proc.sh");
+
+  if (($handle = fopen("cache/tmp.nodes","r")) !== FALSE) {
+    $nodtag = fgetcsv($handle);
+  }
+  $i = 0;
+  while (($data = fgetcsv($handle)) !== FALSE) {
+    $nodes[$i] = (int) $data[0];
+    $i = $i +1;
+  }
+
+
+  //load edges
+  if (($handle = fopen("cache/tmp.edges","r")) !== FALSE) {
+    $lkstag = fgetcsv($handle);
+  }
+  $i = 0;
+  while (($data = fgetcsv($handle)) !== FALSE) {  
+    $links[$i] = array(
+		       $lkstag[0] => (int) $data[0],
+		       $lkstag[1] => (int) $data[1],
+		       );
+    $i = $i+1;
+  }
+
+  for ($i=0; $i < count($nodes); $i+=1) 
+    for ($j=0; $j < count($links); $j+=1) {
+      if ($links[$j][$lkstag[0]] == $nodes[$i])
+	$links[$j][$lkstag[0]] = $i;
+      else if ($links[$j][$lkstag[1]] == $nodes[$i])
+	$links[$j][$lkstag[1]] = $i;
+    }
+
+
+  $ret = file_get_contents("cache/friendsinfo.json");
+  $renreNetJSON = '{"nodes":'.$ret.',"links":'.json_encode($links).'}';
+
+  file_put_contents('cache/d3i.json',$renreNetJSON);
   echo "success!";
 }
 
