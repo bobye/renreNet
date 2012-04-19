@@ -73,39 +73,47 @@ if(null !== $code) {
   
   $count_friends = count($friends);
   //echo $count_friends;
-
-  for ($counter=1; $counter < $count_friends; $counter +=1) {
-    $buffer_uids_cols = implode(',',array_fill(0,$count_friends - $counter, $friends[$counter-1]));
-    $buffer_uids_rows = implode(',',array_slice($friends,$counter,$count_friends - $counter ));
-    if (isset($uids_cols)||isset($uids_rows)) {
-      $uids_cols = $uids_cols.','.$buffer_uids_cols;
-      $uids_rows = $uids_rows.','.$buffer_uids_rows;
-    }else{
-      $uids_cols = $buffer_uids_cols;
-      $uids_rows = $buffer_uids_rows;
+  $counter =1;
+  $buf_num =0;
+  while ($counter < $count_friends) {
+    $buf_count = 0;
+    for (; $counter < $count_friends; $counter +=1) {
+      $buf_count += $count_friends - $counter;
+      $buffer_uids_cols = implode(',',array_fill(0,$count_friends - $counter, $friends[$counter-1]));
+      $buffer_uids_rows = implode(',',array_slice($friends,$counter,$count_friends - $counter ));
+      if (isset($uids_cols)||isset($uids_rows)) {
+	$uids_cols = $uids_cols.','.$buffer_uids_cols;
+	$uids_rows = $uids_rows.','.$buffer_uids_rows;
+      }else{
+	$uids_cols = $buffer_uids_cols;
+	$uids_rows = $buffer_uids_rows;
+      }
+      
+      if ($buf_count > 50000) { $counter +=1; break; }
     }
+    //  echo $uids_cols; echo '<hr>';
+    //  echo $uids_rows; echo '<hr>';
+
+    // get user friends network
+    $params = array(
+		    'api_key' => $config->APIKey,
+		    'call_id' => array_pop(explode(' ', microtime())), //当前调用请求队列号，建议使用当前系统时间的毫秒值。
+		    'format' => 'json',
+		    'method' => 'friends.areFriends',
+		    'session_key' => $session_key,
+		    'v' => '1.0',
+		    'uids1' => $uids_cols,
+		    'uids2' => $uids_rows,
+		    );
+    ksort($params);
+    $params['sig'] = getSig($params, $config->SecretKey);
+
+    $ret = http($url, 'POST', $params);
+
+    file_put_contents('cache/friendsrelation'.$loggeduser_uid.'-'.$buf_num.'.json',$ret);
+    $buf_num +=1;
+    unset($uids_cols); unset($uids_rows);   
   }
-
-  //  echo $uids_cols; echo '<hr>';
-  //  echo $uids_rows; echo '<hr>';
-
-  // get user friends network
-  $params = array(
-  		  'api_key' => $config->APIKey,
-  		  'call_id' => array_pop(explode(' ', microtime())), //当前调用请求队列号，建议使用当前系统时间的毫秒值。
-  		  'format' => 'json',
-  		  'method' => 'friends.areFriends',
-  		  'session_key' => $session_key,
-  		  'v' => '1.0',
-  		  'uids1' => $uids_cols,
-  		  'uids2' => $uids_rows,
-  		  );
-  ksort($params);
-  $params['sig'] = getSig($params, $config->SecretKey);
-  
-  $ret = http($url, 'POST', $params);
-
-  file_put_contents('cache/friendsrelation'.$loggeduser_uid.'.json',$ret);
 
   // get user friends infomation
   $params = array(

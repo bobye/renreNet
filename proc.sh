@@ -1,9 +1,11 @@
 #!/bin/sh
 
-
-cat cache/friendsrelation$1.json| sed 's/},{/\n/g'| sed 's/\[{//g' | sed 's/}\]//g'>  cache/tmp$1.txt
 echo "source,target" > cache/tmp$1.edges
+for file in cache/friendsrelation$1-*.json
+do
+cat $file| sed 's/},{/\n/g'| sed 's/\[{//g' | sed 's/}\]//g'>  cache/tmp$1.txt
 cat cache/tmp$1.txt | sed -n 's/"are_friends":1,"uid2":\([0-9]*\),"uid1":\([0-9]*\)/\1,\2/p' >> cache/tmp$1.edges
+done
 
 cat cache/friendsinfo$1.json| sed 's/},{/\n/g' | sed 's/\[{//g' | sed 's/}\]//g' > cache/tmp$1.txt 
 echo "uid,sex,name" > cache/tmp$1.nodes
