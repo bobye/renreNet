@@ -48,7 +48,7 @@ if(null !== $code) {
   $ret = http($url, 'POST', $params);
   $ret = json_decode($ret,true);
   $loggeduser_uid = $ret['uid'];
-  echo "user:".$loggeduser_uid."<br/>";
+  //  echo "user:".$loggeduser_uid."<br/>";
 
   // get user friends list
   $params = array(
@@ -184,8 +184,8 @@ if(null !== $code) {
       unset($links[$j]);
   $links = array_values($links);
 
-  echo 'friends:'.count($nodes).'<br/>';
-  echo 'links:'.count($links).'<br/>';
+  //  echo 'friends:'.count($nodes).'<br/>';
+  //  echo 'links:'.count($links).'<br/>';
 
   //$ret = file_get_contents("cache/friendsinfo.json");
   $renreNet['nodes'] = $nodes;
@@ -193,7 +193,7 @@ if(null !== $code) {
 
   file_put_contents('cache/d3i'.$loggeduser_uid.'.json',json_encode($renreNet));
 
-  echo "success! ";
+  // echo "success! ";
   header( 'Location: ./demo.php?uid='.$loggeduser_uid );
 }
 
