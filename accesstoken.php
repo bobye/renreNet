@@ -33,6 +33,24 @@ if(null !== $code) {
 
   //test API
   $url = 'http://api.renren.com/restserver.do';  
+  // get user uid
+  $params = array(
+		  'api_key' => $config->APIKey,
+		  'call_id' => array_pop(explode(' ', microtime())), //当前调用请求队列号，建议使用当前系统时间的毫秒值。
+		  'format' => 'json',
+		  'method' => 'users.getLoggedInUser',
+		  'session_key' => $session_key,
+		  'v' => '1.0',
+		  );
+  ksort($params);
+  $params['sig'] = getSig($params, $config->SecretKey);
+  
+  $ret = http($url, 'POST', $params);
+  $ret = json_decode($ret,true);
+  $loggeduser_uid = $ret['uid'];
+  echo "user:".$loggeduser_uid."<br/>";
+
+  // get user friends list
   $params = array(
 		  'api_key' => $config->APIKey,
 		  'call_id' => array_pop(explode(' ', microtime())), //当前调用请求队列号，建议使用当前系统时间的毫秒值。
@@ -48,7 +66,7 @@ if(null !== $code) {
   
   $ret = http($url, 'POST', $params);
   //echo $ret; echo '<hr>';
-  file_put_contents('cache/friendslist.json',$ret);
+  file_put_contents('cache/friendslist'.$loggeduser_uid.'.json',$ret);
 
   $friends = json_decode($ret, true);
   //var_dump($friends); echo '<hr>';
@@ -71,6 +89,7 @@ if(null !== $code) {
   //  echo $uids_cols; echo '<hr>';
   //  echo $uids_rows; echo '<hr>';
 
+  // get user friends network
   $params = array(
   		  'api_key' => $config->APIKey,
   		  'call_id' => array_pop(explode(' ', microtime())), //当前调用请求队列号，建议使用当前系统时间的毫秒值。
@@ -86,9 +105,9 @@ if(null !== $code) {
   
   $ret = http($url, 'POST', $params);
 
-  file_put_contents('cache/friendsrelation.json',$ret);
+  file_put_contents('cache/friendsrelation'.$loggeduser_uid.'.json',$ret);
 
-
+  // get user friends infomation
   $params = array(
   		  'api_key' => $config->APIKey,
   		  'call_id' => array_pop(explode(' ', microtime())), //当前调用请求队列号，建议使用当前系统时间的毫秒值。
@@ -104,22 +123,30 @@ if(null !== $code) {
   
   $ret = http($url, 'POST', $params);
 
-  file_put_contents('cache/friendsinfo.json',$ret);
+  file_put_contents('cache/friendsinfo'.$loggeduser_uid.'.json',$ret);
 
-  shell_exec("./proc.sh");
+  shell_exec("./proc.sh ".$loggeduser_uid);
 
-  if (($handle = fopen("cache/tmp.nodes","r")) !== FALSE) {
+
+  setlocale(LC_ALL, 'en_HK.UTF-8');//setlocale(LC_ALL, 'en_US.UTF-8');
+
+  if (($handle = fopen("cache/tmp".$loggeduser_uid.".nodes","r")) !== FALSE) {
     $nodtag = fgetcsv($handle);
   }
   $i = 0;
   while (($data = fgetcsv($handle)) !== FALSE) {
-    $nodes[$i] = (int) $data[0];
+    $nodes[$i] = array (
+			$nodtag[0] => (int) $data[0],
+			$nodtag[1] => (int) $data[1],
+			$nodtag[2] => $data[2],
+			);
+    //echo $data[2]."<br/>";
     $i = $i +1;
   }
 
 
   //load edges
-  if (($handle = fopen("cache/tmp.edges","r")) !== FALSE) {
+  if (($handle = fopen("cache/tmp".$loggeduser_uid.".edges","r")) !== FALSE) {
     $lkstag = fgetcsv($handle);
   }
   $i = 0;
@@ -131,20 +158,43 @@ if(null !== $code) {
     $i = $i+1;
   }
 
-  for ($i=0; $i < count($nodes); $i+=1) 
-    for ($j=0; $j < count($links); $j+=1) {
-      if ($links[$j][$lkstag[0]] == $nodes[$i])
-	$links[$j][$lkstag[0]] = $i;
-      else if ($links[$j][$lkstag[1]] == $nodes[$i])
-	$links[$j][$lkstag[1]] = $i;
+  $n_nodes = count($nodes); 
+  $n_links = count($links);
+
+  for ($i=0, $index =0; $i < $n_nodes; $i+=1) {
+    $tag = 0;
+    for ($j=0; $j < $n_links; $j+=1) {
+      if ($links[$j][$lkstag[0]] == $nodes[$i][$nodtag[0]])
+	{ $links[$j][$lkstag[0]] = $index; $tag +=1;}
+      else if ($links[$j][$lkstag[1]] == $nodes[$i][$nodtag[0]])
+	{ $links[$j][$lkstag[1]] = $index; $tag +=1;}    
     }
 
+    if ($tag == 0) 
+      unset($nodes[$i]); // remove nodes without links
+    else {
+      $nodes[$i]['value'] = $tag;
+      $index +=1;
+    }
+  }
+  $nodes = array_values($nodes);
 
-  $ret = file_get_contents("cache/friendsinfo.json");
-  $renreNetJSON = '{"nodes":'.$ret.',"links":'.json_encode($links).'}';
+  for ($j=0; $j < $n_links; $j+=1) 
+    if (($links[$j][$lkstag[0]] >= $n_nodes) || ($links[$j][$lkstag[1]] >= $n_nodes))
+      unset($links[$j]);
+  $links = array_values($links);
 
-  file_put_contents('cache/d3i.json',$renreNetJSON);
-  echo "success!";
+  echo 'friends:'.count($nodes).'<br/>';
+  echo 'links:'.count($links).'<br/>';
+
+  //$ret = file_get_contents("cache/friendsinfo.json");
+  $renreNet['nodes'] = $nodes;
+  $renreNet['links'] = $links;
+
+  file_put_contents('cache/d3i'.$loggeduser_uid.'.json',json_encode($renreNet));
+
+  echo "success! ";
+  header( 'Location: ./demo.php?uid='.$loggeduser_uid );
 }
 
 function getSig($params, $oauth_consumer_token_secret) {
@@ -157,7 +207,7 @@ function getSig($params, $oauth_consumer_token_secret) {
 }
 
 function concatParams(&$val, $key) {
-	$val = "{$key}={$val}";
+  $val = "{$key}={$val}";
 }
 
 function http($url, $method, $postfields = array(), $multi = false){
