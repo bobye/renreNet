@@ -41,7 +41,7 @@
 	  }
 	</style>
 	<script type="text/javascript">
-	    var json_data = "cache/d3i"+ "<?php echo $_GET['uid'].'.json' ?>";
+	    var json_data = "cache/"+"<?php if (isset($_GET['uid'])) echo 'd3i'.$_GET['uid'].'.json'; else echo 'demo.json'; ?>";
 </script>
 <script src="force.js" type="text/javascript"></script> 
       </div>
