@@ -46,6 +46,6 @@
 <script src="force.js" type="text/javascript"></script> 
       </div>
     </div>
-    <div id="footer">renreNet &copy; <a href="http://jianbo.ws/">bobye</a> | <a href="https://github.com/bobye/renreNet">code(v-1.0-preview)</a> | <a href="demo.php?uid=<?php echo $_GET['uid']; ?>">permanent links</a> </div>
+    <div id="footer">renreNet &copy; <a href="http://jianbo.ws/">bobye</a> | <a href="https://github.com/bobye/renreNet">code(v-1.0-preview)</a> | <a href="demo.php?uid=<?php echo $_GET['uid']; ?>">permanent link</a> </div>
   </body>
 </html>
