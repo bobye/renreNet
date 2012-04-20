@@ -8,7 +8,7 @@
 
 <body>
 <?php require_once './config.inc.php'; ?>
-   <p>Only limited users can access this applet, see the <a href="demo.php">demo</a> (Chrome ONLY)</p>
+   <p>Only limited users can access this applet, see the <a href="demo.php">demo</a> (<a href="http://www.google.com/chrome/"><img src="image/chrome.png" /></a> ONLY)</p>
 <a  href="https://graph.renren.com/oauth/authorize?client_id=<?=$config->APPID?>&response_type=code&scope=<?=$config->scope?>&redirect_uri=<?=$config->redirecturi?>" ><img src="image/rr_login.png" class="vm" alt="人人连接登陆" /></a>
 
 

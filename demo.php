@@ -14,27 +14,38 @@
       margin:0px auto;
       width:980px;
       }
-      #footer {
-      margin:0px auto;
-      width: 980px;
-      color: #fff;
-      text-align: right;
+      #header {
+      width: 980px;     
+      color: #666;	
       }
-      #footer a{
+      #header p.right {
+      float: right;
+      }
+      #header p.left {
+      float: left;
+      }
+      #header a{
       color:#4A9DDF;
       }
+.clear {
+ clear:both;
+ }
     </style>
   </head>
   <title>renreNet</title>
   <body>  
     <div id="content">
-      <div class="gallery" id="chart">
+	<div id="header">
+	<p class="left">Hint: place the mouse over the circle to display the name. </p>
+	<p class="right">renreNet &copy; <a href="http://jianbo.ws/">bobye</a> | <a href="https://github.com/bobye/renreNet">code(v-1.0-preview)</a> | <a href="demo.php?uid=<?php echo $_GET['uid']; ?>">permanent link</a> <a href="http://www.google.com/chrome"><img src="image/chrome.png" /></a></p>
+	<div class="clear"></div>
+	</div>										      
+	<div class="gallery" id="chart"></div>
 	<style type="text/css">
 	  circle.node {
 	  stroke: #fff;
 	  stroke-width: 1.5px;
 	  }
-
 	  line.link {
 	  stroke: #999;
 	  stroke-opacity: .6;
@@ -42,10 +53,8 @@
 	</style>
 	<script type="text/javascript">
 	    var json_data = "cache/"+"<?php if (isset($_GET['uid'])) echo 'd3i'.$_GET['uid'].'.json'; else echo 'demo.json'; ?>";
-</script>
-<script src="force.js" type="text/javascript"></script> 
-      </div>
+        </script>
+        <script src="force.js" type="text/javascript"></script> 
     </div>
-    <div id="footer">renreNet &copy; <a href="http://jianbo.ws/">bobye</a> | <a href="https://github.com/bobye/renreNet">code(v-1.0-preview)</a> | <a href="demo.php?uid=<?php echo $_GET['uid']; ?>">permanent link</a> </div>
   </body>
 </html>
