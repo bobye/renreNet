@@ -4,8 +4,8 @@ var width = 960,
 var color = d3.scale.category20();
 
 var force = d3.layout.force()
-    .charge(-120)
-    .linkDistance(60)
+    .charge(node_charge)
+    .linkDistance(edge_length)
     .size([width, height]);
 
 var svg = d3.select("#chart").append("svg")
@@ -28,7 +28,7 @@ d3.json(json_data, function(json) {
 	.data(json.nodes)
 	.enter().append("circle")
 	.attr("class", "node")
-	.attr("r", function(d) {return 3+Math.log(d.value); })
+	.attr("r", function(d) {return 3+Math.log(d.weight); })
         .style("fill", function(d) { return d.sex==1? "#aec7e8":"#ff9896"; })
 	.call(force.drag);
     
@@ -36,12 +36,16 @@ d3.json(json_data, function(json) {
 	  .text(function(d) { return d.name; });
 
     force.on("tick", function() {
-	link.attr("x1", function(d) { return d.source.x; })
-            .attr("y1", function(d) { return d.source.y; })
-            .attr("x2", function(d) { return d.target.x; })
-            .attr("y2", function(d) { return d.target.y; });
 
-	node.attr("cx", function(d) { return d.x; })
-            .attr("cy", function(d) { return d.y; });
+	link.attr("x1", function(d) { return xinwindow(d.source.x); })
+            .attr("y1", function(d) { return yinwindow(d.source.y); })
+            .attr("x2", function(d) { return xinwindow(d.target.x); })
+            .attr("y2", function(d) { return yinwindow(d.target.y); });
+
+	node.attr("cx", function(d) { return xinwindow(d.x); })
+            .attr("cy", function(d) { return yinwindow(d.y); });
     });
 });
+
+function xinwindow(x) {if (x > width) return width; else if (x < 0)  return 0; else return x;}
+function yinwindow(y) {if (y > height) return height; else if (y < 0) return 0; else return y;}

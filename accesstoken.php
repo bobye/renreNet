@@ -48,7 +48,7 @@ if(null !== $code) {
   $ret = http($url, 'POST', $params);
   $ret = json_decode($ret,true);
   $loggeduser_uid = $ret['uid'];
-  //  echo "user:".$loggeduser_uid."<br/>";
+  // echo "user:".$loggeduser_uid."<br/>";
 
   // get user friends list
   $params = array(
@@ -66,10 +66,18 @@ if(null !== $code) {
   
   $ret = http($url, 'POST', $params);
   //echo $ret; echo '<hr>';
-  file_put_contents('cache/friendslist'.$loggeduser_uid.'.json',$ret);
+  $ret = substr($ret, 1, count($ret)-2);
+  file_put_contents('cache/friendslist'.$loggeduser_uid.'.csv',$ret);
 
-  $friends = json_decode($ret, true);
-  //var_dump($friends); echo '<hr>';
+  $friends = str_getcsv($ret);
+  for ($i=0; $i<count($friends); $i+=1) {
+    $friends[$i] = intval($friends[$i]);
+    if ($friends[$i] == 0) unset($friends[$i]);
+  }
+  $friends = array_values($friends);
+
+  
+  // var_dump($friends); echo '<hr>';
   
   $count_friends = count($friends);
   //echo $count_friends;
@@ -91,8 +99,8 @@ if(null !== $code) {
       
       if ($buf_count > 50000) { $counter +=1; break; }
     }
-    //  echo $uids_cols; echo '<hr>';
-    //  echo $uids_rows; echo '<hr>';
+    //echo $uids_cols; echo '<hr>';
+    //echo $uids_rows; echo '<hr>';
 
     // get user friends network
     $params = array(
@@ -114,6 +122,7 @@ if(null !== $code) {
     $buf_num +=1;
     unset($uids_cols); unset($uids_rows);   
   }
+
 
   // get user friends infomation
   $params = array(
@@ -202,7 +211,7 @@ if(null !== $code) {
   file_put_contents('cache/d3i'.$loggeduser_uid.'.json',json_encode($renreNet));
 
   // echo "success! ";
-  header( 'Location: ./demo.php?uid='.$loggeduser_uid );
+  header( 'Location: ./demo.php?uid='.$loggeduser_uid.'&num='.count($nodes) );
 }
 
 function getSig($params, $oauth_consumer_token_secret) {
