@@ -9,8 +9,10 @@
 <body>
 <?php require_once './config.inc.php'; ?>
    <p>Only limited users can access this applet, see the <a href="demo.php">demo</a> (<a href="http://www.google.com/chrome/"><img src="image/chrome.png" /></a> ONLY)</p>
-<a  href="https://graph.renren.com/oauth/authorize?client_id=<?=$config->APPID?>&response_type=code&scope=<?=$config->scope?>&redirect_uri=<?=$config->redirecturi?>" ><img src="image/rr_login.png" class="vm" alt="人人连接登陆" /></a>
+   <a  href="https://graph.renren.com/oauth/authorize?client_id=<?=$config->APPID?>&response_type=code&scope=<?=$config->scope?>&redirect_uri=<?=$config->redirecturi?>" ><img src="image/rr_login.png" class="vm" alt="人人连接登陆" /></a> 
 
+   <p> WARNING: This applet works best when you have round 300 friends or less; if you have more than 500 friends, it may take some time to get the results; if you have more than 1000 friends, it may not get a good result automatically. You can interactively select a reasonable parameter in URL after first run, for <a href="#">details</a>.
+</p>
 
 </body>
 </html>
