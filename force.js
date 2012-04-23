@@ -37,15 +37,13 @@ d3.json(json_data, function(json) {
 
     force.on("tick", function() {
 
-	link.attr("x1", function(d) { return xinwindow(d.source.x); })
-            .attr("y1", function(d) { return yinwindow(d.source.y); })
-            .attr("x2", function(d) { return xinwindow(d.target.x); })
-            .attr("y2", function(d) { return yinwindow(d.target.y); });
+	link.attr("x1", function(d) { return (d.source.x); })
+            .attr("y1", function(d) { return (d.source.y); })
+            .attr("x2", function(d) { return (d.target.x); })
+            .attr("y2", function(d) { return (d.target.y); });
 
-	node.attr("cx", function(d) { return xinwindow(d.x); })
-            .attr("cy", function(d) { return yinwindow(d.y); });
+	node.attr("cx", function(d) { return (d.x); })
+            .attr("cy", function(d) { return (d.y); });
     });
 });
 
-function xinwindow(x) {if (x > width) return width; else if (x < 0)  return 0; else return x;}
-function yinwindow(y) {if (y > height) return height; else if (y < 0) return 0; else return y;}

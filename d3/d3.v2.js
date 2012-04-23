@@ -5244,6 +5244,8 @@ d3.layout.force = function() {
         o.x -= (o.px - (o.px = o.x)) * friction;
         o.y -= (o.py - (o.py = o.y)) * friction;
       }
+	if (o.x >= size[0]) o.x =size[0]-1; else if (o.x < 0) o.x=0;
+	if (o.y >= size[1]) o.y =size[1]-1; else if (o.y < 0) o.y=0;
     }
 
     event.tick({type: "tick", alpha: alpha});
