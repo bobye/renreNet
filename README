@@ -1,5 +1,11 @@
-renreNet is javascript based applet to visualize renren friends network. 
+renreNet is javascript web applet to visualize renren friends network. 
+You can visit http://jianbo.ws/p/renreNet/ login with your renren.com 
+account, and view your own friends networks. Demo page is also provided.
+
+Alternatively, you can download the source code and run this applet on
+another server by configuration. Make sure you have registered renren 
+API authentication (via http://dev.renren.com/) and modified properly
+
+  config.inc.php
 
 It is currently developed in a prototype version for a course project.
-
-* remember to checkout d3<https://github.com/mbostock/d3> before running this project
